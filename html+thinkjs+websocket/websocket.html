@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>chatting room</title>
+        <script type="text/javascript">
+            var ws = new WebSocket('ws:localhost:8360/ws')  //连接服务器
+            var userid = Math.floor(Math.random() * 10000000)   //js随机生成游客id
+            document.getElementsByClassName('.userid').value = userid   //赋值class=userid的input框
+            // ws.console.error()
+            
+            ws.onmessage = function(event){
+                var res = JSON.parse(event.data)        //将thinkjs默认格式转换为 直接输出data
+                var data = document.getElementById('responseText')      //关联 输出框
+                //data.value += '\n' +'游客ID：<'+ res.data.userid + '>' +'\n' + res.data.time + '：\n' + res.data.content 
+                // setMessageInnerHTML('<div style="text-align:center">Websocket 链接成功</div>')    
+                if(res.data.userid === userid){     //判断 服务端获取的对话id是否为当前用户
+                    //是  则输出内容在界面右侧
+                    //输出 游客ID：<id>  换行  当前时间  消息内容
+                    setMessageInnerHTML(`<div style="text-align:right">游客ID：<${res.data.userid}> <br> ${res.data.time}：<br> ${res.data.content}</div>`)    
+                }else{  //否 则输出内容在界面左侧
+                    setMessageInnerHTML(`<div style="text-align:left">游客ID：<${res.data.userid}> <br> ${res.data.time}：<br> ${res.data.content}</div>`)    
+                }
+                console.log(event.data)     //在控制台输出 服务器 事件获取的值
+                
+            }
+            
+            function setMessageInnerHTML(innerHTML){    //添加html代码  即实现对话更新
+                document.getElementById('responseText').innerHTML += innerHTML;
+            }
+        </script>
+    </head>
+    <body>
+        <div>
+            <form onsubmit="return false;">
+                <h1 style="display: inline-block">当前游客id：</h1>
+                <input class="userid"  disabled>
+                <input class="sendtext" name="message" placeholder="输入消息">
+                <button class="send"  onclick="ws.send(JSON.stringify({event:'message',data:{userid:userid,content:this.form.message.value,time:Date()}}))">发送消息</button>
+            </form>
+            <p>     
+                <!-- 绑定点击事件  调用ws的close方法 断开ws连接 -->
+                <button class="close" onclick="ws.close()"><strong>关闭WebSocket连接</strong></button> 
+                <!-- <button class="open" onclick="ws.open()"><strong>打开WebSocket连接</strong></button> -->
+            </p>
+            <div>
+                <div id="responseText"></div>
+            </div>
+        </div>
+    </body>
+</html>
