@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>视频播放测试</title>
+    <link href="https://vjs.zencdn.net/7.4.1/video-js.css" rel="stylesheet">
+    <script src='https://vjs.zencdn.net/7.4.1/video.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/videojs-flash@2/dist/videojs-flash.min.js"></script>
+</head>
+<body>
+<style>
+    .video-js .vjs-tech {position: relative !important;}
+</style>
+<div>
+    <div id="head" style="height: 36px; width: 100vw">
+        <input id="input" type="text" placeholder="请输入直播源" value="rtmp://202.120.39.160/live/123456" style="font-size: 14px; line-height: 20px; width: 300px"/>
+        <button id="button-hls" onclick="changeSource('hls')" style="font-size: 14px; line-height: 20px;">hls直播</button>
+        <button id="button-rtmp" onclick="changeSource('rtmp')" style="font-size: 14px; line-height: 20px;">rtmp直播</button>
+    </div>
+    <video id="myVideo" class="video-js vjs-default-skin vjs-big-play-centered" controls autoplay preload="auto" data-setup='{}' style='width: 100vw;height: 90vh'>
+    </video>
+</div>
+</body>
+
+<script>
+    // videojs 简单使用
+    const myVideo = videojs('myVideo');
+    const changeSource = function (type) {
+        const src = document.getElementById('input').value;
+        if (type === 'hls' && src.endsWith('.m3u8')) { //判断视频源是否是m3u8的格式
+            myVideo.src({
+                src: src,
+                type: 'application/x-mpegURL' //在重新添加视频源的时候需要给新的type的值
+            })
+        } else if (type === 'rtmp' && src.startsWith('rtmp://')) { //判断视频源是否是rtmp流
+            myVideo.src({
+                src: src,
+                type: 'rtmp/flv' //在重新添加视频源的时候需要给新的type的值
+            })
+        } else {
+            alert("非法直播源！");
+            return
+        }
+        myVideo.play();
+    };
+</script>
+</html>
